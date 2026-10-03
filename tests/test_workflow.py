@@ -35,7 +35,23 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(item["payload"]["assessment"]["level"], "high")
         item = self.service.act(item["id"], "advise", {"notice_id": "N-1", "kind": "boil", "message": "煮沸"}, "disp-1", "dispatcher", item["version"])
         item = self.service.act(item["id"], "switch_source", {"alternate_source_id": "ALT-1"}, "coord-1", "coordinator", item["version"])
-        item = self.service.act(item["id"], "flush", {"zone_id": "Z-1"}, "field-1", "field_operator", item["version"])
+        occupancy = self.service.request_occupancy(
+            {"event_id": item["id"], "branch_id": "BR-1", "valve_ids": ["V-1", "V-2"]},
+            "disp-1",
+            "dispatcher",
+        )
+        for valve in occupancy["valves"]:
+            self.service.record_valve_receipt(
+                {
+                    "branch_id": "BR-1",
+                    "valve_id": valve["valve_id"],
+                    "command_no": valve["command_no"],
+                    "closed": True,
+                },
+                "field-1",
+                "field_operator",
+            )
+        item = self.service.act(item["id"], "flush", {"zone_id": "Z-1", "branch_id": "BR-1"}, "field-1", "field_operator", item["version"])
         item = self.service.act(item["id"], "disinfect", {"zone_id": "Z-1", "completed": True}, "field-1", "field_operator", item["version"])
         item = self.service.act(item["id"], "sample", {"sample_id": "S-1", "zone_id": "Z-1", "concentration": 2}, "lab-1", "lab", item["version"])
         item = self.service.act(item["id"], "restore", {"all_zones_cleared": True}, "coord-1", "coordinator", item["version"])

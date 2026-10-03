@@ -2,4 +2,8 @@
 GET /api/state
 POST /api/items
 POST /api/items/{id}/sources
-POST /api/items/{id}/actions</pre></body></html>
+POST /api/items/{id}/actions
+POST /api/occupancies
+POST /api/valve-receipts
+GET /api/occupancies/{order_no}
+GET /api/branches/{branch_id}/ledger</pre><p>升级后的事件冲洗需提供 branch_id；所有隔离阀门确认关断后才能冲洗。旧事件继续沿用无隔离凭证流程。</p></body></html>

@@ -84,8 +84,12 @@ def apply_action(item, action, payload, actor, role):
     if action == "flush":
         _need_status(item, {"advisory", "flushing", "switched"})
         zone_id = _text(payload, "zone_id")
-        current.setdefault("response_actions", []).append({"type": "flush", "zone_id": zone_id})
-        return "flushing", current, {"zone_id": zone_id, "type": "flush"}
+        branch_id = str(payload.get("branch_id", "")).strip()
+        entry = {"type": "flush", "zone_id": zone_id}
+        if branch_id:
+            entry["branch_id"] = branch_id
+        current.setdefault("response_actions", []).append(entry)
+        return "flushing", current, {"zone_id": zone_id, "type": "flush", **({"branch_id": branch_id} if branch_id else {})}
 
     if action == "disinfect":
         _need_status(item, {"flushing", "disinfected"})
